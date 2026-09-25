@@ -118,13 +118,15 @@ public class CustomerDao {
                     "SELECT id, fiscal_code, first_name, last_name, customer_type "
                     + "FROM customers WHERE id = ?");
             pstmt.setLong(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return Optional.of(mapRow(rs));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRow(rs));
+                }
+
+                return Optional.empty();
             }
-            return Optional.empty();
-        } catch (SQLException e) {
-            throw e;
+        } finally {
+          DatabaseManager.releaseConnection(conn);
         }
     }
 

@@ -75,13 +75,15 @@ public class AccountDao {
                     "SELECT id, iban, balance, account_type, customer_id "
                     + "FROM accounts WHERE id = ?");
             pstmt.setLong(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return Optional.of(mapRow(rs));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(mapRow(rs));
+                }
+
+                return Optional.empty();
             }
-            return Optional.empty();
-        } catch (SQLException e) {
-            throw e;
+        } finally {
+            DatabaseManager.releaseConnection(conn);
         }
     }
 
