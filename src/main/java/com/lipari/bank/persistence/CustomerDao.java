@@ -136,9 +136,10 @@ public class CustomerDao {
                 SELECT c.fiscal_code,
                        c.first_name,
                        c.last_name,
-                       a.balance
+                       SUM(a.balance) AS total_balance
                 FROM customers c
                 INNER JOIN accounts a ON c.id = a.customer_id
+                GROUP BY c.id, c.fiscal_code, c.first_name, c.last_name
                 ORDER BY c.last_name, c.first_name
                 """;
         Connection conn = DatabaseManager.getConnection();
@@ -149,7 +150,7 @@ public class CustomerDao {
                 result.add(new CustomerBalanceRow(
                         rs.getString("fiscal_code"),
                         rs.getString("first_name") + " " + rs.getString("last_name"),
-                        rs.getBigDecimal("balance")));
+                        rs.getBigDecimal("total_balance")));
             }
             return result;
         } finally {
